@@ -20,4 +20,21 @@ contract Coin {
         require(msg.sender == minter);
         balances[receiver] += amount;
     }
+
+    // Errors allow you to provide informatin about why an operation failed.
+    // They are returned to the caller of the function.
+    error InsufficientBalance(uint256 requested, uint256 available);
+
+    // Sends an amount of existing coins from any caller to an address.
+    function send(address receiver, uint256 amount) public {
+        if (amount > balances[msg.sender])
+            revert InsufficientBalance({
+                requested: amount,
+                available: balances[msg.sender]
+            });
+
+        balances[msg.sender] -= amount;
+        balances[receiver] += amount;
+        emit Sent(msg.sender, receiver, amount);
+    }
 }
